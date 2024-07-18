@@ -3,8 +3,8 @@ import torch
 
 
 class Renderer:
-    def __init__(self, resolution: int, steps_per_frame: int = 10, threshold: float = 1.e-3) -> None:
-        self.threshold: float = threshold
+    def __init__(self, resolution: int, steps_per_frame: int = 10, precision: int = 4) -> None:
+        self.precision: int = precision
         self.resolution: int = resolution
         self.steps_per_frame: int = steps_per_frame
         self.display: torch.tensor = torch.linspace(-1, 1, steps=resolution)
@@ -18,8 +18,14 @@ class Renderer:
             min_sdf = torch.minimum(min_sdf, obj.sdf(rays))
         return min_sdf.unsqueeze(1)
 
+    def sdf2(self, rays: torch.tensor, objects: list[torch.tensor]) -> torch.tensor:
+        min_sdf = objects[0].sdf(rays)
+        for obj in objects[1:]:
+            min_sdf = torch.maximum(min_sdf, obj.sdf(rays))
+        return min_sdf.unsqueeze(1)
+
     def binarization(self, x: torch.tensor) -> torch.tensor:
-        return torch.logical_not(torch.round(x, decimals=3).bool())
+        return torch.logical_not(torch.round(x, decimals=self.precision).bool())
 
     def get_frame(self, objects: list[torch.tensor]) -> np.ndarray:
         rays = self.display.clone()
