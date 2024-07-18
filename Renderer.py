@@ -19,10 +19,7 @@ class Renderer:
         return min_sdf.unsqueeze(1)
 
     def sdf2(self, rays: torch.tensor, objects: list[torch.tensor]) -> torch.tensor:
-        min_sdf = objects[0].sdf(rays)
-        for obj in objects[1:]:
-            min_sdf = torch.maximum(min_sdf, obj.sdf(rays))
-        return min_sdf.unsqueeze(1)
+        return objects[0].sdf(rays).unsqueeze(1)
 
     def binarization(self, x: torch.tensor) -> torch.tensor:
         return torch.logical_not(torch.round(x, decimals=self.precision).bool())
