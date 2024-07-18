@@ -18,8 +18,11 @@ class Renderer:
             min_sdf = torch.minimum(min_sdf, obj.sdf(rays))
         return min_sdf.unsqueeze(1)
 
+    def binarization(self, x: torch.tensor) -> torch.tensor:
+        return torch.logical_not(torch.round(x, decimals=3).bool())
+
     def get_frame(self, objects: list[torch.tensor]) -> np.ndarray:
         rays = self.display.clone()
         for i in range(10):
             rays += self.ray_dirs * self.sdf(rays, objects)
-        return self.sdf(rays, objects).detach().cpu().apply_(lambda x: 1 if x < self.threshold else 0).numpy()
+        return self.binarization(self.sdf(rays, objects)).detach().cpu().numpy()
