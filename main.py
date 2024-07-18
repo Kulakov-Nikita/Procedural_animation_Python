@@ -1,16 +1,15 @@
-# This is a sample Python script.
+import torch
+from Renderer import Renderer
+from Sphere import Sphere
+import matplotlib.pyplot as plt
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+resolution: int = 1000
+renderer: Renderer = Renderer(resolution=resolution, steps_per_frame=10)
 
+sph1: Sphere = Sphere(position=torch.tensor((3, 4, 10)), radius=1, tile_size=resolution)
+sph2: Sphere = Sphere(position=torch.tensor((3, 0, 10)), radius=1, tile_size=resolution)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+frame = renderer.get_frame(objects=[sph1, sph2])
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+plt.imshow(frame.reshape(resolution, resolution))
+plt.show()
