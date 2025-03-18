@@ -17,7 +17,7 @@ def record_video(path: str, resolution: tuple, fps: int, num_frames: int, render
             case 2:
                 chain.move(torch.tensor((-1, 0, -0.5), dtype=torch.float32).cuda())
 
-        frame = renderer.get_frame(objects=objects).reshape((1000, 1000))*255
+        frame = renderer.get_frame(objects=objects).reshape(resolution)*255
         frame = np.stack((frame,)*3, axis=2).astype('uint8')
         writer.write(frame.astype('uint8'))
         print(i)

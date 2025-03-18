@@ -4,21 +4,34 @@ from Sphere import Sphere
 from Chain import Chain
 from VideoRecorder import record_video
 import matplotlib.pyplot as plt
+import sys
 
-resolution: int = 1000
-renderer: Renderer = Renderer(resolution=resolution, steps_per_frame=10, precision=4)
 
-sph1: Sphere = Sphere(position=torch.tensor((3, 4, 10), dtype=torch.float32), radius=1, tile_size=resolution)
-# sph2: Sphere = Sphere(position=torch.tensor((3, 0, 10), dtype=torch.float32), radius=1, tile_size=resolution)
-# sph3: Sphere = Sphere(position=torch.tensor((0, 0, 10), dtype=torch.float32), radius=1, tile_size=resolution)
-# sph4: Sphere = Sphere(position=torch.tensor((-3, 0, 10), dtype=torch.float32), radius=1, tile_size=resolution)
+def main():
+    resolution: int = int(sys.argv[1])
+    output_path: str = sys.argv[2]
+    fps: int = int(sys.argv[3])
+    num_frames: int = int(sys.argv[4])
+    objects = []
+    chain=None
+    for i in range(5, len(sys.argv), 5):
+        if sys.argv[i] in ['-s', '--sphere']:
+            objects.append(Sphere(position=torch.tensor((int(sys.argv[i+1]),int(sys.argv[i+2]),int(sys.argv[i+3])),dtype=torch.float32),
+                                  radius=int(sys.argv[i+4]), tile_size=resolution))
+        if sys.argv[i] in ['-c', '--chain']:
+            if chain == None:
+                chain = Chain(position=torch.tensor((int(sys.argv[i+1]),int(sys.argv[i+2]),int(sys.argv[i+3])),
+                                                    dtype=torch.float32), radius=int(sys.argv[i+4]), length=10,
+                                                    tile_size=resolution)
+                objects.append(chain)
+            else:
+                print("There can only be one Chain object at a time.")
+                return
 
-chain: Chain = Chain(position=torch.tensor((0, 0, 20), dtype=torch.float32), radius=1, length=10, tile_size=resolution)
+    record_video(path=output_path, resolution=(resolution, resolution), fps=fps, num_frames=num_frames,
+                 renderer=Renderer(resolution), objects=objects, chain=chain)
 
-record_video(path='videos/test.avi', resolution=(resolution, resolution), fps=30, num_frames=90,
-             renderer=renderer, objects=[chain, sph1], chain=chain)
 
-#frame = renderer.get_frame(objects=[sph1, sph2])
 
-#plt.imshow(frame.reshape(resolution, resolution))
-#plt.show()
+if __name__ == '__main__':
+    main()
